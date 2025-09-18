@@ -193,6 +193,12 @@ const StudentRegistrationForm = () => {
           {isSubmitting ? 'Registering...' : 'Register'}
         </Button>
       </form>
+
+      <div className="mt-4">
+        <Link to="/" className="text-blue-500 hover:underline">
+          Already have an account? Login
+        </Link>
+      </div>
     </div>
   );
 };
