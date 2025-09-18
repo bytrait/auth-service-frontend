@@ -9,23 +9,28 @@ export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchAuth = async () => {
-            try {
-                const data = await checkAuthStatus();
-                setAuth({ loading: false, authenticated: true, user: data.data });
+    const fetchAuth = async () => {
+        try {
+            const res = await checkAuthStatus();
+
+            if (res?.data?.authenticated) {
+                setAuth({ loading: false, authenticated: true, user: res.data.user });
 
                 // Redirect only if on auth-related pages
-                if (window.location.pathname === '/' || window.location.pathname === '/login') {
+                if (['/', '/login'].includes(window.location.pathname)) {
                     window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL;
                 }
-
-            } catch {
+            } else {
                 setAuth({ loading: false, authenticated: false, user: null });
             }
-        };
+        } catch (err) {
+            setAuth({ loading: false, authenticated: false, user: null });
+        }
+    };
 
-        fetchAuth();
-    }, [navigate]);
+    fetchAuth();
+}, [navigate]);
+
 
     return (
         <AuthContext.Provider value={{ auth, setAuth }}>
