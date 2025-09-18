@@ -6,9 +6,10 @@ import { sendRegisterOtp, verifyRegisterOtp, registerUser } from '../../api/auth
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 const RESEND_STORAGE_KEY = 'register_otp_last_sent';
 const RESEND_OTP_TIMEOUT = 300; // in seconds
+
 
 const StudentRegistrationForm = () => {
   const navigate = useNavigate();
