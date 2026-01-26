@@ -6,13 +6,12 @@ import { sendRegisterOtp, verifyRegisterOtp, registerUser } from '../../api/auth
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import { toast } from 'sonner';
-import { Link, useNavigate } from 'react-router-dom';
-const RESEND_STORAGE_KEY = 'register_otp_last_sent';
-const RESEND_OTP_TIMEOUT = 300; // in seconds
+import { Link } from 'react-router-dom';
 
+const RESEND_STORAGE_KEY = 'register_otp_last_sent';
+const RESEND_OTP_TIMEOUT = 300;
 
 const StudentRegistrationForm = () => {
-  const navigate = useNavigate();
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -26,15 +25,17 @@ const StudentRegistrationForm = () => {
   } = useForm({
     resolver: zodResolver(RegistrationSchema),
     defaultValues: {
-      name: '',
+      fullName: '',
       email: '',
       otp: '',
       contact: '',
-      schoolCode: '',
+      referenceCode: '', // ✅ updated
     },
   });
 
-  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const isOtpValid = (otp) => /^\d{6}$/.test(otp);
 
   const handleSendOtp = async () => {
@@ -46,8 +47,7 @@ const StudentRegistrationForm = () => {
 
     try {
       await sendRegisterOtp({ email });
-      const now = Date.now();
-      localStorage.setItem(RESEND_STORAGE_KEY, now.toString());
+      localStorage.setItem(RESEND_STORAGE_KEY, Date.now().toString());
       setIsOtpSent(true);
       setResendTimer(RESEND_OTP_TIMEOUT);
       toast.success('OTP sent successfully. Please check your email.');
@@ -74,22 +74,26 @@ const StudentRegistrationForm = () => {
   };
 
   const onSubmit = async (data) => {
-    console.log('Form data:', data);
     if (!isOtpVerified) {
       setError('otp', { message: 'Please verify OTP before registering.' });
       return;
     }
 
     try {
-      await registerUser({ ...data, role: 'STUDENT' });
+      await registerUser({
+        ...data,
+        role: 'STUDENT',
+      });
+
       toast.success('Registration successful');
-      window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL;
+      localStorage.removeItem(RESEND_STORAGE_KEY);
+      window.location.href =
+        import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL;
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Registration failed');
     }
-  };  
+  };
 
-  // On mount: restore resend timer from localStorage
   useEffect(() => {
     const lastSent = localStorage.getItem(RESEND_STORAGE_KEY);
     if (lastSent) {
@@ -101,18 +105,12 @@ const StudentRegistrationForm = () => {
     }
   }, []);
 
-  // Countdown effect
   useEffect(() => {
     if (resendTimer > 0) {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [resendTimer]);
-
-  useEffect(() => {
-  console.log("Form errors:", errors);
-}, [errors]);
-
 
   return (
     <div className="bg-white">
@@ -121,7 +119,7 @@ const StudentRegistrationForm = () => {
           label="Full Name"
           type="text"
           {...register('fullName')}
-          error={errors.name?.message}
+          error={errors.fullName?.message}
           placeholder="Enter your full name"
         />
 
@@ -138,15 +136,13 @@ const StudentRegistrationForm = () => {
           <Button
             type="button"
             onClick={handleSendOtp}
-            className="w-50"
             disabled={resendTimer > 0}
           >
             {resendTimer > 0
-              ? `Resend in ${Math.floor(resendTimer / 60)
-                  .toString()
-                  .padStart(2, '0')}:${(resendTimer % 60)
-                  .toString()
-                  .padStart(2, '0')}`
+              ? `Resend in ${String(Math.floor(resendTimer / 60)).padStart(
+                  2,
+                  '0'
+                )}:${String(resendTimer % 60).padStart(2, '0')}`
               : isOtpSent
               ? 'Resend OTP'
               : 'Send OTP'}
@@ -155,22 +151,19 @@ const StudentRegistrationForm = () => {
 
         {isOtpSent && (
           <div className="flex gap-2 items-end">
-            <div className="w-full">
-              <Input
-                label="Enter OTP"
-                type="text"
-                {...register('otp')}
-                error={errors.otp?.message}
-                placeholder="Enter OTP"
-              />
-            </div>
+            <Input
+              label="Enter OTP"
+              type="text"
+              {...register('otp')}
+              error={errors.otp?.message}
+              placeholder="Enter OTP"
+            />
             <Button
               type="button"
               onClick={handleVerifyOtp}
-              className="w-50"
-              disabled={!isOtpValid(getValues('otp'))}
+              disabled={isOtpVerified}
             >
-              Verify
+              {isOtpVerified ? 'Verified' : 'Verify'}
             </Button>
           </div>
         )}
@@ -183,14 +176,25 @@ const StudentRegistrationForm = () => {
           placeholder="Enter contact number"
         />
 
+        {/* ✅ Updated reference code input */}
         <Input
-          label="School/College Code (Optional)"
+          label="Reference Code (Optional)"
           type="text"
-          {...register('schoolCode')}
-          placeholder="Enter school or college code"
+          {...register('referenceCode')}
+          placeholder="Enter counsellor or institution code"
         />
 
-        <Button type='submit' className="w-full mt-4" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          className="w-full mt-4"
+          disabled={
+            isSubmitting ||
+            !isOtpVerified ||
+            !isValidEmail(getValues('email')) ||
+            !getValues('fullName') ||
+            !getValues('contact')
+          }
+        >
           {isSubmitting ? 'Registering...' : 'Register'}
         </Button>
       </form>

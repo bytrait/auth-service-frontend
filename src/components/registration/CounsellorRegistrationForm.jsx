@@ -22,7 +22,6 @@ const CounsellorRegistrationForm = () => {
     register,
     handleSubmit,
     watch,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(RegistrationSchema),
@@ -31,14 +30,13 @@ const CounsellorRegistrationForm = () => {
       email: '',
       otp: '',
       contact: '',
-      schoolCode: '', // not used for counsellor
     },
   });
 
   const email = watch('email');
   const otp = watch('otp');
 
-  // Restore timer from localStorage on load
+  // Restore timer from localStorage
   useEffect(() => {
     const storedTimestamp = localStorage.getItem(OTP_TIMER_KEY);
     if (storedTimestamp) {
@@ -52,9 +50,10 @@ const CounsellorRegistrationForm = () => {
     }
   }, []);
 
-  // Countdown effect
+  // Countdown
   useEffect(() => {
     if (timer <= 0) return;
+
     const interval = setInterval(() => {
       setTimer((prev) => {
         if (prev <= 1) {
@@ -65,6 +64,7 @@ const CounsellorRegistrationForm = () => {
         return prev - 1;
       });
     }, 1000);
+
     return () => clearInterval(interval);
   }, [timer]);
 
@@ -73,7 +73,8 @@ const CounsellorRegistrationForm = () => {
       await sendRegisterOtp({ email });
       toast.success('OTP sent successfully!');
       setOtpSent(true);
-      const expiryTimestamp = Date.now() + 60 * 1000; // 60 sec cooldown
+
+      const expiryTimestamp = Date.now() + 60 * 1000;
       localStorage.setItem(OTP_TIMER_KEY, expiryTimestamp.toString());
       setTimer(60);
     } catch (err) {
@@ -98,9 +99,13 @@ const CounsellorRegistrationForm = () => {
     }
 
     try {
-      await registerUser({ ...data, role: 'COUNSELLOR' });
+      await registerUser({
+        ...data,
+        role: 'COUNSELLOR',
+      });
+
       toast.success('Registration successful!');
-      // You may redirect here
+      // redirect if needed
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Registration failed');
     }

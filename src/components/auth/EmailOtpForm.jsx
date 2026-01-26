@@ -47,11 +47,12 @@ const EmailOtpForm = () => {
             const role = res?.data?.user?.role;
 
             toast.success('Login successful');
+            localStorage.removeItem(RESEND_STORAGE_KEY);
 
             // Redirect based on role
             if (role === 'STUDENT') window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL;
-            else if (role === 'COUNSELLOR') navigate('/counsellor/dashboard');
-            else if (role === 'INSTITUTION') navigate('/institution/dashboard');
+            else if (role === 'COUNSELLOR') window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL + "/counsellor/students";
+            // else if (role === 'INSTITUTION') window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL + "/institution/students";
             else navigate('/');
         } catch (err) {
             toast.error(err?.response?.data?.message || 'Invalid OTP');
@@ -138,7 +139,7 @@ const EmailOtpForm = () => {
 
                         <div className="mt-4 text-center text-sm text-gray-600">
                             <span>or </span>
-                            <Link to="/register/student" className="text-blue-600 hover:underline">
+                            <Link to="/role-selection" className="text-blue-600 hover:underline">
                                 Create new account
                             </Link>
                         </div>
