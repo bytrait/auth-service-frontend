@@ -74,21 +74,21 @@ const StudentRegistrationForm = () => {
   };
 
   const onSubmit = async (data) => {
-    if (!isOtpVerified) {
-      setError('otp', { message: 'Please verify OTP before registering.' });
+    if (!data.otp || !isOtpVerified) {
+      setError('otp', { message: 'OTP verification is required' });
       return;
     }
-
+  
+    const payload = {
+      ...data,
+      role: 'STUDENT',
+      referenceCode: data.referenceCode || undefined, // normalize
+    };
+  
     try {
-      await registerUser({
-        ...data,
-        role: 'STUDENT',
-      });
-
+      await registerUser(payload);
       toast.success('Registration successful');
-      localStorage.removeItem(RESEND_STORAGE_KEY);
-      window.location.href =
-        import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL;
+      window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL + "/counsellor/students";
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Registration failed');
     }
