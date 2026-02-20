@@ -51,7 +51,7 @@ const EmailOtpForm = () => {
 
             // Redirect based on role
             if (role === 'STUDENT') window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL;
-            else if (role === 'COUNSELLOR') window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL + "/counsellor/students";
+            else if (role === 'COUNSELLOR') window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL + "/counsellor/dashboard";
             // else if (role === 'INSTITUTION') window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL + "/institution/students";
             else navigate('/');
         } catch (err) {
