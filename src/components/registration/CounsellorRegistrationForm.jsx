@@ -105,7 +105,7 @@ const CounsellorRegistrationForm = () => {
       });
 
       toast.success('Registration successful!');
-      window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL + "/counsellor/students";
+      window.location.href = import.meta.env.VITE_CAREER_GUIDANCE_PLATFORM_URL + "/counsellor/dashboard";
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Registration failed');
     }

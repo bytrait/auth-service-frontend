@@ -139,7 +139,7 @@ const EmailOtpForm = () => {
 
                         <div className="mt-4 text-center text-sm text-gray-600">
                             <span>or </span>
-                            <Link to="/role-selection" className="text-blue-600 hover:underline">
+                            <Link to="/register/student" className="text-blue-600 hover:underline">
                                 Create new account
                             </Link>
                         </div>
