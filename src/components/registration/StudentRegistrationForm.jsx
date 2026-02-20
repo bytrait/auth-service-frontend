@@ -21,16 +21,10 @@ const StudentRegistrationForm = () => {
     handleSubmit,
     getValues,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(RegistrationSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      otp: '',
-      contact: '',
-      referenceCode: '', // ✅ updated
-    },
+    mode: 'onChange', // important
   });
 
   const isValidEmail = (email) =>
@@ -82,7 +76,7 @@ const StudentRegistrationForm = () => {
     const payload = {
       ...data,
       role: 'STUDENT',
-      referenceCode: data.referenceCode || undefined, // normalize
+      referenceCode: data.referenceCode,
     };
   
     try {
@@ -178,9 +172,10 @@ const StudentRegistrationForm = () => {
 
         {/* ✅ Updated reference code input */}
         <Input
-          label="Reference Code (Optional)"
+          label="Reference Code"
           type="text"
           {...register('referenceCode')}
+          error={errors.referenceCode?.message}
           placeholder="Enter counsellor or institution code"
         />
 
@@ -190,9 +185,7 @@ const StudentRegistrationForm = () => {
           disabled={
             isSubmitting ||
             !isOtpVerified ||
-            !isValidEmail(getValues('email')) ||
-            !getValues('fullName') ||
-            !getValues('contact')
+            !isValid
           }
         >
           {isSubmitting ? 'Registering...' : 'Register'}
