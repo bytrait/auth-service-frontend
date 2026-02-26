@@ -9,7 +9,7 @@ import {
 } from '../../api/authService';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
-import { RegistrationSchema } from '../../validators/registerUser.validator';
+import { CounsellorRegistrationSchema } from '../../validators/counsellorRegister.validator';
 
 const OTP_TIMER_KEY = 'counsellor_registration_otp_timer';
 
@@ -24,7 +24,7 @@ const CounsellorRegistrationForm = () => {
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(RegistrationSchema),
+    resolver: zodResolver(CounsellorRegistrationSchema),
     defaultValues: {
       fullName: '',
       email: '',
